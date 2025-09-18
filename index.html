@@ -6,14 +6,135 @@
   <title>Budget – Minimal Black</title>
   <meta name="color-scheme" content="dark" />
   <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
-  <style>/* Styles unverändert (siehe vorherige Version) */</style>
+  <style>
+    :root{
+      --bg: #0a0a0a; --panel: #111111; --panel-2: #161616; --text: #e7e7e7; --muted: #9a9a9a;
+      --accent:#0a84ff; --danger:#ff453a; --ok:#30d158; --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 800px at 90% -10%,#171717 0%,var(--bg) 50%),radial-gradient(1000px 700px at -20% 120%,#131313 0%,var(--bg) 55%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji";letter-spacing:.15px}
+    .wrap{max-width:1040px;margin:40px auto;padding:0 20px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent);box-shadow:0 0 30px rgba(10,132,255,.6)}
+    h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid #1e1e1e;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1.2fr .8fr}}
+    .section{padding:18px}
+    .muted{color:var(--muted)}
+    input,select,button,textarea{font:inherit;color:inherit}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .row{display:grid;gap:12px}
+    @media(min-width:640px){.row{grid-template-columns:repeat(3,1fr)}}
+    input,select,textarea{background:#0f0f10;border:1px solid #212121;color:var(--text);border-radius:14px;padding:12px 14px;outline:none;transition:border .2s,transform .06s}
+    input:focus,select:focus,textarea:focus{border-color:#2a2a2a}
+    button{border:1px solid #1e1e1e;background:linear-gradient(180deg,#1a1a1a,#121212);border-radius:14px;padding:12px 16px;cursor:pointer;transition:transform .06s ease,filter .2s ease}
+    button:hover{filter:brightness(1.08)}
+    button:active{transform:scale(.99)}
+    .btn-primary{border-color:#0d3d72;background:linear-gradient(180deg,#0f6fd8,#0a58c7)}
+    .btn-ghost{background:transparent}
+    .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .pill{padding:10px 12px;border-radius:999px;background:#0f0f10;border:1px solid #1e1e1e;text-align:center}
+    .pill.good{border-color:#163f2a}
+    .pill.bad{border-color:#3f1b18}
+    .list{display:flex;flex-direction:column}
+    .item{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid #1b1b1b}
+    .item:first-child{border-top:none}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #262626;background:#0d0d0f;color:#cfcfcf}
+    .amount{font-variant-numeric:tabular-nums}
+    .pos{color:var(--ok)}
+    .neg{color:var(--danger)}
+    .right{justify-self:end}
+    .login-card{max-width:440px;margin:120px auto;padding:24px;backdrop-filter:blur(10px)}
+    .center{display:flex;gap:10px;align-items:center;justify-content:center}
+    .hidden{display:none !important}
+    .footer{margin-top:24px;color:#7a7a7a;text-align:center;font-size:12px}
+  </style>
 </head>
 <body>
-  <!-- ... HTML Struktur bleibt unverändert ... -->
+  <div id="app">
+    <!-- Lock Screen (Passcode nur für UI) -->
+    <div id="lock" class="login-card card">
+      <div class="brand center" style="margin-bottom:8px"><div class="dot"></div><h1>Budget</h1></div>
+      <p class="muted" style="text-align:center;margin:0 0 16px">App per Passwort entsperren.</p>
+      <form id="lock-form" class="grid" autocomplete="off" style="gap:12px">
+        <div class="field">
+          <label for="passcode">Passwort</label>
+          <input id="passcode" name="passcode" type="password" required placeholder="••••••" />
+        </div>
+        <button class="btn-primary" type="submit">Entsperren</button>
+      </form>
+      <p id="lock-error" class="muted" style="min-height:18px;margin-top:10px"></p>
+    </div>
+
+    <!-- App Screen -->
+    <div id="dashboard" class="wrap hidden">
+      <header>
+        <div class="brand"><div class="dot"></div><h1>Dein Budget</h1></div>
+        <div class="center" style="gap:8px">
+          <span id="who" class="muted"></span>
+          <button id="logout">Sperren</button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="card section">
+          <h2 style="margin:0 0 8px;font-size:16px">Buchungen</h2>
+          <div class="list" id="entries"></div>
+        </section>
+
+        <aside class="card section">
+          <h2 style="margin:0 0 8px;font-size:16px">Neue Buchung</h2>
+          <form id="entry-form" class="grid" style="gap:12px">
+            <div class="row">
+              <div class="field">
+                <label for="date">Datum</label>
+                <input id="date" name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label for="type">Art</label>
+                <select id="type" name="type">
+                  <option value="expense">Ausgabe</option>
+                  <option value="income">Einnahme</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="category">Kategorie</label>
+                <input id="category" name="category" placeholder="z.B. Lebensmittel" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label for="description">Beschreibung</label>
+                <input id="description" name="description" placeholder="optional" />
+              </div>
+              <div class="field">
+                <label for="amount">Betrag (€)</label>
+                <input id="amount" name="amount" type="number" step="0.01" min="0" required />
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="btn-primary" type="submit">Speichern</button>
+              </div>
+            </div>
+          </form>
+          <div style="height:10px"></div>
+          <div class="totals">
+            <div class="pill">Einnahmen: <strong id="t-income">0,00 €</strong></div>
+            <div class="pill">Ausgaben: <strong id="t-expense">0,00 €</strong></div>
+            <div class="pill" id="balance-pill">Saldo: <strong id="t-balance">0,00 €</strong></div>
+          </div>
+        </aside>
+      </div>
+      <p class="footer">⌘ iOS‑inspired, minimal black · GitHub Pages + Firebase (anonyme Auth)</p>
+    </div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // === Firebase Konfiguration (Budgetyve) ===
@@ -31,62 +152,44 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // === UI und Logik (unverändert aus vorheriger Version) ===
     const el = (id) => document.getElementById(id);
-    const authCard = el('auth');
+    const lockCard = el('lock');
     const dash = el('dashboard');
 
-    el('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = el('email').value.trim();
-      const pw = el('password').value;
-      try {
-        await signInWithEmailAndPassword(auth, email, pw);
-        el('auth-error').textContent = '';
-      } catch (err) {
-        el('auth-error').textContent = mapAuthError(err);
-      }
-    });
+    // Passcode (nur UI – nicht für echte Sicherheit geeignet)
+    const PASSCODE = '120799';
 
-    el('signup').addEventListener('click', async () => {
-      const email = el('email').value.trim();
-      const pw = el('password').value;
-      if(!email || !pw){
-        el('auth-error').textContent = 'Bitte E-Mail & Passwort ausfüllen.'; return;
-      }
+    // Entsperren = Passcode prüfen & anonym anmelden
+    el('lock-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = el('passcode').value.trim();
+      if(code !== PASSCODE){ el('lock-error').textContent = 'Falsches Passwort.'; return; }
       try {
-        await createUserWithEmailAndPassword(auth, email, pw);
-        el('auth-error').textContent = '';
+        await signInAnonymously(auth);
+        el('lock-error').textContent = '';
       } catch (err) {
-        el('auth-error').textContent = mapAuthError(err);
+        el('lock-error').textContent = 'Fehler beim Entsperren: ' + (err.message || err);
       }
     });
 
     el('logout').addEventListener('click', () => signOut(auth));
 
-    function mapAuthError(err){
-      const code = err?.code || '';
-      if(code.includes('auth/invalid-credential')) return 'Anmeldung fehlgeschlagen – prüfe E-Mail/Passwort.';
-      if(code.includes('auth/weak-password')) return 'Passwort ist zu schwach (minimum 6 Zeichen).';
-      if(code.includes('auth/email-already-in-use')) return 'Diese E-Mail ist bereits registriert.';
-      return 'Fehler: ' + (err.message || err.toString());
-    }
-
     let unsubEntries = null;
     onAuthStateChanged(auth, (user) => {
       if(user){
-        authCard.classList.add('hidden');
+        lockCard.classList.add('hidden');
         dash.classList.remove('hidden');
-        el('who').textContent = user.email;
+        el('who').textContent = 'Gast';
         startEntriesLive(user.uid);
         el('date').valueAsDate = new Date();
       } else {
         if (unsubEntries) { unsubEntries(); unsubEntries = null; }
         dash.classList.add('hidden');
-        authCard.classList.remove('hidden');
+        lockCard.classList.remove('hidden');
       }
     });
 
+    // Firestore: users/{uid}/entries – pro (anonymem) Nutzer separiert
     function startEntriesLive(uid){
       const q = query(collection(db, 'users', uid, 'entries'), orderBy('createdAt','desc'));
       unsubEntries = onSnapshot(q, (snap)=>{
@@ -118,33 +221,23 @@
     }
 
     function renderList(items){
-      const box = el('entries');
-      box.innerHTML = '';
-      if(items.length === 0){
-        box.innerHTML = '<div class="muted" style="padding:16px">Noch keine Buchungen – leg los! ✨</div>';
-        return;
-      }
+      const box = el('entries'); box.innerHTML = '';
+      if(items.length === 0){ box.innerHTML = '<div class="muted" style="padding:16px">Noch keine Buchungen – leg los! ✨</div>'; return; }
       const fmt = new Intl.NumberFormat('de-DE', { style:'currency', currency:'EUR' });
       for(const it of items){
-        const row = document.createElement('div');
-        row.className = 'item';
+        const row = document.createElement('div'); row.className = 'item';
         const chip = `<span class="chip">${escapeHTML(it.category)}</span>`;
         const desc = escapeHTML(it.description || '—');
-        const d = new Date(it.date);
-        const ds = isNaN(d) ? escapeHTML(it.date) : d.toLocaleDateString('de-DE');
-        const sign = it.type === 'income' ? 1 : -1;
-        const amt = sign * (Number(it.amount) || 0);
+        const d = new Date(it.date); const ds = isNaN(d) ? escapeHTML(it.date) : d.toLocaleDateString('de-DE');
+        const sign = it.type === 'income' ? 1 : -1; const amt = sign * (Number(it.amount) || 0);
         row.innerHTML = `
           <div>
             <div style="font-weight:600">${chip} ${desc}</div>
             <div class="muted" style="font-size:12px">${ds}</div>
           </div>
-          <div class="right">
-            <span class="amount ${amt>=0?'pos':'neg'}">${fmt.format(amt)}</span>
-          </div>
+          <div class="right"><span class="amount ${amt>=0?'pos':'neg'}">${fmt.format(amt)}</span></div>
           <div class="muted">${it.type === 'income' ? 'Einnahme' : 'Ausgabe'}</div>
-          <div class="right"><button class="btn-ghost" aria-label="Löschen" title="Löschen" data-id="${it.id}">🗑️</button></div>
-        `;
+          <div class="right"><button class="btn-ghost" aria-label="Löschen" title="Löschen" data-id="${it.id}">🗑️</button></div>`;
         row.querySelector('button').addEventListener('click', ()=> delEntry(it.id));
         box.appendChild(row);
       }
@@ -153,30 +246,36 @@
     async function delEntry(id){
       const user = auth.currentUser; if(!user) return;
       if(!confirm('Buchung wirklich löschen?')) return;
-      try{
-        await deleteDoc(doc(db, 'users', user.uid, 'entries', id));
-      }catch(err){ alert('Konnte nicht löschen: '+err); }
+      try{ await deleteDoc(doc(db, 'users', user.uid, 'entries', id)); }
+      catch(err){ alert('Konnte nicht löschen: '+err); }
     }
 
     function renderTotals(items){
-      let inc=0, exp=0;
-      for(const it of items){
-        const v = Number(it.amount) || 0;
-        if(it.type === 'income') inc += v; else exp += v;
-      }
-      const bal = inc - exp;
-      const fmt = new Intl.NumberFormat('de-DE', { style:'currency', currency:'EUR' });
+      let inc=0, exp=0; for(const it of items){ const v=Number(it.amount)||0; if(it.type==='income') inc+=v; else exp+=v; }
+      const bal=inc-exp; const fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
       el('t-income').textContent = fmt.format(inc);
       el('t-expense').textContent = fmt.format(exp);
       el('t-balance').textContent = fmt.format(bal);
-      const pill = el('balance-pill');
-      pill.classList.toggle('good', bal>=0);
-      pill.classList.toggle('bad', bal<0);
+      const pill = el('balance-pill'); pill.classList.toggle('good', bal>=0); pill.classList.toggle('bad', bal<0);
     }
 
-    function escapeHTML(s){
-      return (s||'').replace(/[&<>"']/g, m=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
-    }
+    function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
   </script>
+
+  <!--
+  ============================
+  🔐 FIRESTORE SECURITY RULES (eintragen unter Firestore → Regeln)
+  rules_version = '2';
+  service cloud.firestore {
+    match /databases/{database}/documents {
+      match /users/{userId}/entries/{docId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+
+  ⚠️ Hinweis: Der Passcode schützt nur die UI. Für echte Zugangsbeschränkung weiter Firebase Auth (E-Mail/Passwort) oder Hosting-Passwort (z.B. Netlify/Cloudflare Access) nutzen.
+  ============================
+  -->
 </body>
 </html>
