@@ -1,38 +1,154 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Budget – Basic</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Budgetplaner</title>
   <style>
-    body { font-family: system-ui; background:#111; color:#eee; margin:0; padding:20px }
-    .card { max-width:400px; margin:60px auto; padding:20px; background:#222; border-radius:10px }
-    input,button { width:100%; padding:10px; margin:6px 0; border-radius:6px; border:1px solid #444; background:#000; color:#eee }
-    button { cursor:pointer; background:#0a84ff; border:none }
-    #auth-error { color:#f55; min-height:20px }
-    .hidden { display:none }
+    :root{--bg:#0b0b0f;--card:#16171d;--muted:#8e95a1;--text:#e8eaed;--primary:#0a84ff;--danger:#ff4d4f;--ok:#22c55e}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    .grid{display:grid;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:320px 1fr}}
+    .card{background:var(--card);border:1px solid #24262e;border-radius:14px;padding:16px}
+    h1{font-size:22px;margin:0 0 12px}
+    h2{font-size:16px;margin:0 0 8px;color:var(--muted)}
+    input,select,button,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2d36;background:#0e0f14;color:var(--text)}
+    input[type="month"], input[type="date"]{padding:8px 10px}
+    button{background:var(--primary);border:none;cursor:pointer;font-weight:600}
+    button.ghost{background:transparent;border:1px dashed #2a2d36}
+    .row{display:flex;gap:10px}
+    .row>div{flex:1}
+    .muted{color:var(--muted)}
+    .right{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #23252e;text-align:left;font-size:14px}
+    th{color:#aab2c0;font-weight:600}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:12px}
+    .pill.in{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+    .pill.out{background:rgba(255,77,79,.12);color:#ffb4b5;border:1px solid rgba(255,77,79,.3)}
+    .sum{font-size:28px;font-weight:700}
+    .sum.positive{color:#86efac}
+    .sum.negative{color:#ff9aa0}
+    .hide{display:none}
+    .auth{max-width:420px;margin:96px auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .tag{padding:6px 10px;border-radius:10px;background:#0e0f14;border:1px solid #2a2d36;color:#9aa2b2;font-size:12px}
+    .actions{display:flex;gap:8px}
   </style>
 </head>
 <body>
-  <div id="auth" class="card">
-    <h2>Login</h2>
-    <input id="email" type="email" placeholder="E-Mail">
-    <input id="password" type="password" placeholder="Passwort">
-    <button id="loginBtn">Anmelden</button>
-    <button id="signupBtn">Registrieren</button>
-    <div id="auth-error"></div>
+  <div id="auth" class="wrap auth">
+    <div class="card">
+      <h1>Anmeldung</h1>
+      <div style="display:grid;gap:8px">
+        <input id="email" type="email" placeholder="E‑Mail" />
+        <input id="password" type="password" placeholder="Passwort" />
+        <div class="row">
+          <button id="loginBtn">Anmelden</button>
+          <button id="signupBtn" class="ghost">Registrieren</button>
+        </div>
+        <div id="auth-error" class="muted" style="min-height:22px"></div>
+      </div>
+    </div>
   </div>
 
-  <div id="dashboard" class="card hidden">
-    <h2>Dashboard</h2>
-    <p>Angemeldet als: <span id="who"></span></p>
-    <button id="logout">Abmelden</button>
+  <div id="app" class="wrap hide">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <h1 style="margin:0">Budgetplaner</h1>
+        <span id="who" class="tag"></span>
+      </div>
+      <div class="actions">
+        <input id="month" type="month"/>
+        <button id="exportBtn" title="CSV Export">Export</button>
+        <button id="logout">Abmelden</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Eintrag</h2>
+        <div class="row">
+          <div>
+            <label class="muted">Datum</label>
+            <input id="date" type="date" />
+          </div>
+          <div>
+            <label class="muted">Typ</label>
+            <select id="kind">
+              <option value="income">Einnahme</option>
+              <option value="expense">Ausgabe</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label class="muted">Kategorie</label>
+            <input id="cat" placeholder="z. B. Miete, Gehalt, Essen" />
+          </div>
+          <div>
+            <label class="muted">Betrag (€)</label>
+            <input id="amount" type="number" step="0.01" min="0" placeholder="0,00" />
+          </div>
+        </div>
+        <div>
+          <label class="muted">Notiz</label>
+          <input id="note" placeholder="optional" />
+        </div>
+        <div class="row">
+          <button id="save">Hinzufügen</button>
+          <button id="cancelEdit" class="ghost hide">Abbrechen</button>
+        </div>
+        <div id="form-error" class="muted" style="min-height:22px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Übersicht</h2>
+        <div class="row">
+          <div class="card" style="flex:1">
+            <div class="muted">Einnahmen</div>
+            <div id="sumIn" class="sum">–</div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="muted">Ausgaben</div>
+            <div id="sumOut" class="sum">–</div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="muted">Saldo</div>
+            <div id="sumNet" class="sum">–</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Buchungen</h2>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Datum</th>
+              <th>Typ</th>
+              <th>Kategorie</th>
+              <th style="text-align:right">Betrag</th>
+              <th>Notiz</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // === Firebase config: wie in deinem bestehenden Login-Setup ===
     const firebaseConfig = {
       apiKey: "AIzaSyBX2SJ69fysC6EhhAUr-RhnwLUz7OvP1Nc",
       authDomain: "budgetyve.firebaseapp.com",
@@ -44,41 +160,187 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    const $ = id => document.getElementById(id);
-    const authCard = $("auth");
-    const dash = $("dashboard");
-    const who = $("who");
+    // === Helpers ===
+    const $ = (id)=>document.getElementById(id);
+    const fmtEUR = (n)=> new Intl.NumberFormat('de-DE',{ style:'currency', currency:'EUR' }).format(n);
+    const todayISO = ()=> new Date().toISOString().slice(0,10);
+    const monthOf = (date)=> date.toISOString().slice(0,7); // YYYY-MM
 
-    $("loginBtn").onclick = async () => {
-      try {
+    let unsub = null; // active snapshot listener
+    let editId = null; // currently edited doc id
+
+    function setForm(data){
+      $("date").value = data?.date || todayISO();
+      $("kind").value = data?.kind || 'expense';
+      $("cat").value  = data?.cat  || '';
+      $("amount").value = data?.amount != null ? String(data.amount) : '';
+      $("note").value = data?.note || '';
+      $("form-error").textContent = '';
+    }
+
+    function setModeEditing(enabled){
+      $("save").textContent = enabled ? 'Speichern' : 'Hinzufügen';
+      $("cancelEdit").classList.toggle('hide', !enabled);
+    }
+
+    function monthStartEnd(yyyyMM){
+      const [y,m] = yyyyMM.split('-').map(Number);
+      const start = new Date(Date.UTC(y, m-1, 1, 0,0,0));
+      const end   = new Date(Date.UTC(y, m,   1, 0,0,0)); // exclusive
+      return { start: Timestamp.fromDate(start), end: Timestamp.fromDate(end) };
+    }
+
+    function rowTemplate(d){
+      const date = d.date?.toDate?.() || new Date(d.date);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${date.toLocaleDateString('de-DE')}</td>
+        <td>${d.kind==='income' ? '<span class="pill in">Einnahme</span>' : '<span class="pill out">Ausgabe</span>'}</td>
+        <td>${escapeHtml(d.cat || '')}</td>
+        <td style="text-align:right">${fmtEUR(Number(d.amount||0))}</td>
+        <td>${escapeHtml(d.note || '')}</td>
+        <td class="right">
+          <button data-act="edit">Bearbeiten</button>
+          <button data-act="del" style="background:var(--danger)">Löschen</button>
+        </td>`;
+      return tr;
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+
+    async function saveEntry(uid){
+      const date = $("date").value;
+      const kind = $("kind").value;
+      const cat  = $("cat").value.trim();
+      const amount = Number($("amount").value);
+      const note = $("note").value.trim();
+
+      if(!date || !cat || !Number.isFinite(amount) || amount < 0){
+        $("form-error").textContent = 'Bitte Datum, Kategorie und einen Betrag ≥ 0 angeben.';
+        return;
+      }
+
+      const data = {
+        date: Timestamp.fromDate(new Date(date + 'T12:00:00Z')), // mittags: TZ-sicher
+        kind, cat, amount, note,
+        updatedAt: serverTimestamp(),
+        month: date.slice(0,7), // für einfache Filter/Indexe
+      };
+
+      const col = collection(db, 'users', uid, 'entries');
+
+      if(editId){
+        await updateDoc(doc(col, editId), data);
+        editId = null;
+        setModeEditing(false);
+      } else {
+        await addDoc(col, { ...data, createdAt: serverTimestamp() });
+      }
+      setForm();
+    }
+
+    async function deleteEntry(uid, id){
+      const col = collection(db, 'users', uid, 'entries');
+      await deleteDoc(doc(col, id));
+    }
+
+    function subscribeMonth(uid, yyyyMM){
+      if(unsub) unsub();
+      const {start, end} = monthStartEnd(yyyyMM);
+      const col = collection(db, 'users', uid, 'entries');
+      const qy = query(col, where('date','>=', start), where('date','<', end), orderBy('date','desc'));
+      unsub = onSnapshot(qy, (snap)=>{
+        const rows = $("rows");
+        rows.innerHTML = '';
+        let sumIn=0, sumOut=0;
+        snap.forEach((docSnap)=>{
+          const d = { id: docSnap.id, ...docSnap.data() };
+          if(d.kind==='income') sumIn += Number(d.amount||0); else sumOut += Number(d.amount||0);
+          const tr = rowTemplate(d);
+          tr.querySelector('[data-act="edit"]').onclick = ()=>{
+            editId = d.id;
+            setForm({
+              date: d.date?.toDate?.().toISOString().slice(0,10),
+              kind: d.kind, cat: d.cat, amount: d.amount, note: d.note
+            });
+            setModeEditing(true);
+            window.scrollTo({top:0,behavior:'smooth'});
+          };
+          tr.querySelector('[data-act="del"]').onclick = ()=>{
+            if(confirm('Diesen Eintrag löschen?')) deleteEntry(uid, d.id);
+          };
+          rows.appendChild(tr);
+        });
+        $("sumIn").textContent = fmtEUR(sumIn);
+        $("sumOut").textContent = fmtEUR(sumOut);
+        const net = sumIn - sumOut;
+        $("sumNet").textContent = fmtEUR(net);
+        $("sumNet").classList.toggle('positive', net >= 0);
+        $("sumNet").classList.toggle('negative', net < 0);
+      });
+    }
+
+    function exportCSV(){
+      const headers = ['Datum','Typ','Kategorie','Betrag','Notiz'];
+      const rows = Array.from(document.querySelectorAll('#rows tr')).map(tr=>{
+        const tds = tr.querySelectorAll('td');
+        return [tds[0].innerText, tds[1].innerText, tds[2].innerText, tds[3].innerText.replace(/\./g,'').replace(/\s€/,'').replace(',', '.'), tds[4].innerText];
+      });
+      const csv = [headers, ...rows].map(r=> r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(';')).join('\n');
+      const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `budget_${$("month").value||monthOf(new Date())}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // === Auth wiring ===
+    $("loginBtn").onclick = async ()=>{
+      try{
         await signInWithEmailAndPassword(auth, $("email").value, $("password").value);
-        $("auth-error").textContent = "";
-      } catch (err) {
-        $("auth-error").textContent = err.message;
-      }
+        $("auth-error").textContent='';
+      }catch(err){ $("auth-error").textContent = err.message; }
     };
-
-    $("signupBtn").onclick = async () => {
-      try {
+    $("signupBtn").onclick = async ()=>{
+      try{
         await createUserWithEmailAndPassword(auth, $("email").value, $("password").value);
-        $("auth-error").textContent = "";
-      } catch (err) {
-        $("auth-error").textContent = err.message;
-      }
+        $("auth-error").textContent='';
+      }catch(err){ $("auth-error").textContent = err.message; }
     };
+    $("logout").onclick = ()=> signOut(auth);
 
-    $("logout").onclick = () => signOut(auth);
+    $("save").onclick = ()=> auth.currentUser && saveEntry(auth.currentUser.uid);
+    $("cancelEdit").onclick = ()=>{ editId=null; setModeEditing(false); setForm(); };
+    $("exportBtn").onclick = exportCSV;
 
     onAuthStateChanged(auth, user => {
-      if (user) {
-        authCard.classList.add("hidden");
-        dash.classList.remove("hidden");
-        who.textContent = user.email;
+      if(user){
+        $("auth").classList.add('hide');
+        $("app").classList.remove('hide');
+        $("who").textContent = user.email;
+        const now = new Date();
+        $("month").value = monthOf(now);
+        $("date").value = todayISO();
+        setModeEditing(false);
+        setForm();
+        subscribeMonth(user.uid, $("month").value);
       } else {
-        dash.classList.add("hidden");
-        authCard.classList.remove("hidden");
+        if(unsub) unsub();
+        $("rows").innerHTML='';
+        $("auth").classList.remove('hide');
+        $("app").classList.add('hide');
       }
+    });
+
+    $("month").addEventListener('change', ()=>{
+      const user = auth.currentUser; if(!user) return;
+      subscribeMonth(user.uid, $("month").value);
     });
   </script>
 </body>
