@@ -22,17 +22,17 @@
     .dot{width:10px;height:10px;border-radius:999px;background:var(--accent);box-shadow:0 0 30px rgba(10,132,255,.6)}
     h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
     .card{position:relative;background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--panel-2) 60%, transparent));
-  border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-}
-.card:before{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-  background: radial-gradient(120% 120% at 100% 0%, rgba(255,255,255,.08), transparent 40%),
-              radial-gradient(140% 100% at 0% 100%, rgba(255,255,255,.04), transparent 45%);
-  mask: linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
-  -webkit-mask: linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
-}
+      border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
+      border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+    }
+    .card:before{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background: radial-gradient(120% 120% at 100% 0%, rgba(255,255,255,.08), transparent 40%),
+                  radial-gradient(140% 100% at 0% 100%, rgba(255,255,255,.04), transparent 45%);
+      mask: linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+      -webkit-mask: linear-gradient(#000,#000) content-box, linear-gradient(#000,#000);
+    }
     .grid{display:grid;gap:16px}
     @media(min-width:1060px){.grid{grid-template-columns:1.2fr .8fr}}
     .section{padding:18px}
@@ -44,36 +44,30 @@
     input,select,textarea{background:color-mix(in oklab,var(--panel) 96%, black 4%);border:1px solid var(--border);color:var(--text);border-radius:14px;padding:12px 14px;outline:none;transition:border .2s,transform .06s}
     input:focus,select:focus,textarea:focus{border-color:color-mix(in oklab,var(--accent) 35%, var(--border))}
     button{border:1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--panel-2) 60%, transparent));
-  border-radius:22px; padding:12px 16px; cursor:pointer; transition:transform .06s ease, filter .2s ease;
-  backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
-  box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
-}
-button:hover{filter:brightness(1.08)}
-button:active{transform:scale(.98)}
-.btn-primary{border-color:color-mix(in oklab,var(--accent) 55%, var(--border)); background:linear-gradient(180deg,color-mix(in oklab,var(--accent) 60%, transparent), color-mix(in oklab,var(--accent) 40%, transparent))}
-.btn-ghost{background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; border-color:color-mix(in oklab,var(--border) 60%, transparent)}
-    button:hover{filter:brightness(1.06)}
-    button:active{transform:scale(.99)}
-    .btn-primary{border-color:color-mix(in oklab,var(--accent) 50%, var(--border));background:linear-gradient(180deg,color-mix(in oklab,var(--accent) 65%, #0000), color-mix(in oklab,var(--accent) 45%, #0000))}
-    .btn-ghost{background:transparent}
+      background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--panel-2) 60%, transparent));
+      border-radius:22px; padding:12px 16px; cursor:pointer; transition:transform .06s ease, filter .2s ease;
+      backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
+      box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    button:hover{filter:brightness(1.08)}
+    button:active{transform:scale(.98)}
+    .btn-primary{border-color:color-mix(in oklab,var(--accent) 55%, var(--border)); background:linear-gradient(180deg,color-mix(in oklab,var(--accent) 60%, transparent), color-mix(in oklab,var(--accent) 40%, transparent))}
+    .btn-ghost{background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; border-color:color-mix(in oklab,var(--border) 60%, transparent)}
     .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .pill{padding:10px 12px;border-radius:999px;background:color-mix(in oklab, var(--panel) 70%, transparent);
-  border:1px solid color-mix(in oklab,var(--border) 70%, transparent); text-align:center; backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-}
-.pill.good{border-color:color-mix(in oklab,var(--ok) 45%, var(--border))}
-.pill.bad{border-color:color-mix(in oklab,var(--danger) 45%, var(--border))}
+      border:1px solid color-mix(in oklab,var(--border) 70%, transparent); text-align:center; backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
     .pill.good{border-color:color-mix(in oklab,var(--ok) 45%, var(--border))}
     .pill.bad{border-color:color-mix(in oklab,var(--danger) 45%, var(--border))}
     .list{display:flex;flex-direction:column}
-    .item{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid color-mix(in oklab, var(--border) 80%, #0000)}
+    .item{display:grid;grid-template-columns: 1fr auto auto auto;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid color-mix(in oklab, var(--border) 80%, #0000)}
     .item:first-child{border-top:none}
     .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in oklab, var(--border) 60%, transparent);
-  background:color-mix(in oklab, var(--panel) 65%, transparent); color:color-mix(in oklab, var(--text) 90%, #0000);
-  backdrop-filter: blur(10px) saturate(130%); -webkit-backdrop-filter: blur(10px) saturate(130%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-}
+      background:color-mix(in oklab, var(--panel) 65%, transparent); color:color-mix(in oklab, var(--text) 90%, #0000);
+      backdrop-filter: blur(10px) saturate(130%); -webkit-backdrop-filter: blur(10px) saturate(130%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
     .amount{font-variant-numeric:tabular-nums}
     .pos{color:var(--ok)}
     .neg{color:var(--danger)}
@@ -92,7 +86,9 @@ button:active{transform:scale(.98)}
   </style>
 </head>
 <body>
-  <div id="auth" class="login-card card hidden">
+
+  <!-- Login -->
+  <div id="auth" class="login-card card">
     <div class="brand center" style="margin-bottom:8px"><div class="dot"></div><h1>Budget</h1></div>
     <p class="muted" style="text-align:center;margin:0 0 16px">Melde dich an, um deine Budgetübersicht zu sehen.</p>
     <form id="login-form" class="grid" autocomplete="on" style="gap:12px">
@@ -110,7 +106,8 @@ button:active{transform:scale(.98)}
     </form>
   </div>
 
-  <div class="wrap" id="dashboard">
+  <!-- Dashboard -->
+  <div class="wrap hidden" id="dashboard">
     <header>
       <div class="brand"><div class="dot"></div><h1>Dein Budget</h1></div>
       <div class="center" style="gap:8px">
@@ -194,7 +191,10 @@ button:active{transform:scale(.98)}
     <p class="footer">⌘ iOS‑inspired, minimal · Firebase Auth + Firestore · Charts: Chart.js</p>
   </div>
 
-  <!-- Firebase + Chart.js -->
+  <!-- Chart.js FIRST -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- App Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -287,16 +287,15 @@ button:active{transform:scale(.98)}
 
     function escapeHTML(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m])); }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Firestore Rules (in Console eintragen & veröffentlichen)
+  <!--
+  Firestore Rules (in Console eintragen & veröffentlichen)
   rules_version = '2';
   service cloud.firestore {
     match /databases/{database}/documents {
       match /users/{userId}/entries/{docId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      // Settings/Budgets nur für eigenen Nutzer
       match /users/{userId}/settings/{docId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
