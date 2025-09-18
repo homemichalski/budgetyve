@@ -55,18 +55,24 @@
 </head>
 <body>
   <div id="app">
-    <!-- Lock Screen (Passcode nur für UI) -->
-    <div id="lock" class="login-card card">
+    <!-- Auth Screen (E-Mail & Passwort) -->
+    <div id="auth" class="login-card card">
       <div class="brand center" style="margin-bottom:8px"><div class="dot"></div><h1>Budget</h1></div>
-      <p class="muted" style="text-align:center;margin:0 0 16px">App per Passwort entsperren.</p>
-      <form id="lock-form" class="grid" autocomplete="off" style="gap:12px">
+      <p class="muted" style="text-align:center;margin:0 0 16px">Melde dich an, um deine Budgetübersicht zu sehen.</p>
+
+      <form id="login-form" class="grid" autocomplete="on" style="gap:12px">
         <div class="field">
-          <label for="passcode">Passwort</label>
-          <input id="passcode" name="passcode" type="password" required placeholder="••••••" />
+          <label for="email">E-Mail</label>
+          <input id="email" name="email" type="email" inputmode="email" required placeholder="du@beispiel.de" />
         </div>
-        <button class="btn-primary" type="submit">Entsperren</button>
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" name="password" type="password" required placeholder="••••••••" />
+        </div>
+        <button class="btn-primary" type="submit">Anmelden</button>
+        <button id="signup" class="btn-ghost" type="button" title="Optional – erlaubt neue Konten">Konto erstellen</button>
       </form>
-      <p id="lock-error" class="muted" style="min-height:18px;margin-top:10px"></p>
+      <p id="auth-error" class="muted" style="min-height:18px;margin-top:10px"></p>
     </div>
 
     <!-- App Screen -->
@@ -75,7 +81,7 @@
         <div class="brand"><div class="dot"></div><h1>Dein Budget</h1></div>
         <div class="center" style="gap:8px">
           <span id="who" class="muted"></span>
-          <button id="logout">Sperren</button>
+          <button id="logout">Abmelden</button>
         </div>
       </header>
 
@@ -128,13 +134,13 @@
           </div>
         </aside>
       </div>
-      <p class="footer">⌘ iOS‑inspired, minimal black · GitHub Pages + Firebase (anonyme Auth)</p>
+      <p class="footer">⌘ iOS‑inspired, minimal black · GitHub Pages + Firebase Auth</p>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // === Firebase Konfiguration (Budgetyve) ===
@@ -153,43 +159,61 @@
     const db = getFirestore(app);
 
     const el = (id) => document.getElementById(id);
-    const lockCard = el('lock');
+    const authCard = el('auth');
     const dash = el('dashboard');
 
-    // Passcode (nur UI – nicht für echte Sicherheit geeignet)
-    const PASSCODE = '120799';
-
-    // Entsperren = Passcode prüfen & anonym anmelden
-    el('lock-form').addEventListener('submit', async (e) => {
+    // Login
+    el('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const code = el('passcode').value.trim();
-      if(code !== PASSCODE){ el('lock-error').textContent = 'Falsches Passwort.'; return; }
+      const email = el('email').value.trim();
+      const pw = el('password').value;
       try {
-        await signInAnonymously(auth);
-        el('lock-error').textContent = '';
+        await signInWithEmailAndPassword(auth, email, pw);
+        el('auth-error').textContent = '';
       } catch (err) {
-        el('lock-error').textContent = 'Fehler beim Entsperren: ' + (err.message || err);
+        el('auth-error').textContent = mapAuthError(err);
+      }
+    });
+
+    // Optional: neues Konto erstellen (für weitere Nutzer)
+    el('signup').addEventListener('click', async () => {
+      const email = el('email').value.trim();
+      const pw = el('password').value;
+      if(!email || !pw){ el('auth-error').textContent='Bitte E-Mail & Passwort ausfüllen.'; return; }
+      try {
+        await createUserWithEmailAndPassword(auth, email, pw);
+        el('auth-error').textContent = '';
+      } catch (err) {
+        el('auth-error').textContent = mapAuthError(err);
       }
     });
 
     el('logout').addEventListener('click', () => signOut(auth));
 
+    function mapAuthError(err){
+      const code = err?.code || '';
+      if(code.includes('auth/invalid-credential')) return 'Anmeldung fehlgeschlagen – prüfe E-Mail/Passwort.';
+      if(code.includes('auth/weak-password')) return 'Passwort ist zu schwach (mind. 6 Zeichen).';
+      if(code.includes('auth/email-already-in-use')) return 'Diese E-Mail ist bereits registriert.';
+      return 'Fehler: ' + (err.message || err.toString());
+    }
+
     let unsubEntries = null;
     onAuthStateChanged(auth, (user) => {
       if(user){
-        lockCard.classList.add('hidden');
+        authCard.classList.add('hidden');
         dash.classList.remove('hidden');
-        el('who').textContent = 'Gast';
+        el('who').textContent = user.email;
         startEntriesLive(user.uid);
         el('date').valueAsDate = new Date();
       } else {
         if (unsubEntries) { unsubEntries(); unsubEntries = null; }
         dash.classList.add('hidden');
-        lockCard.classList.remove('hidden');
+        authCard.classList.remove('hidden');
       }
     });
 
-    // Firestore: users/{uid}/entries – pro (anonymem) Nutzer separiert
+    // Firestore: users/{uid}/entries – feste UID pro Nutzer
     function startEntriesLive(uid){
       const q = query(collection(db, 'users', uid, 'entries'), orderBy('createdAt','desc'));
       unsubEntries = onSnapshot(q, (snap)=>{
@@ -273,8 +297,6 @@
       }
     }
   }
-
-  ⚠️ Hinweis: Der Passcode schützt nur die UI. Für echte Zugangsbeschränkung weiter Firebase Auth (E-Mail/Passwort) oder Hosting-Passwort (z.B. Netlify/Cloudflare Access) nutzen.
   ============================
   -->
 </body>
