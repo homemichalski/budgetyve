@@ -1,296 +1,85 @@
 <!doctype html>
-<html lang="de" data-theme="dark">
+<html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Budget – Minimal Black</title>
-  <meta name="color-scheme" content="dark light" />
-  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Budget – Basic</title>
   <style>
-    :root{ --bg:#0a0a0a; --panel:#111; --panel-2:#161616; --text:#e7e7e7; --muted:#9a9a9a; --border:#1e1e1e;
-           --accent:#0a84ff; --danger:#ff453a; --ok:#30d158; --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.45); }
-    html[data-theme="light"]{ --bg:#f7f7f8; --panel:#fff; --panel-2:#fafafa; --text:#111; --muted:#616161; --border:#e5e5e7; --accent:#007aff; --danger:#ff3b30; --ok:#34c759 }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 800px at 90% -10%,#171717 0%,var(--bg) 50%),radial-gradient(1000px 700px at -20% 120%,#131313 0%,var(--bg) 55%);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Helvetica Neue",Arial}
-    html[data-theme="light"] body{background:var(--bg)}
-    .wrap{max-width:1180px;margin:40px auto;padding:0 20px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-    .brand{display:flex;gap:12px;align-items:center} .dot{width:10px;height:10px;border-radius:999px;background:var(--accent);box-shadow:0 0 30px rgba(10,132,255,.6)}
-    h1{font-size:22px;margin:0;font-weight:700;letter-spacing:.2px}
-    .card{position:relative;background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--panel-2) 60%, transparent));
-      border:1px solid color-mix(in oklab, var(--border) 70%, transparent); border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
-      backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); }
-    .card:before{content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
-      background: radial-gradient(120% 120% at 100% 0%, rgba(255,255,255,.08), transparent 40%), radial-gradient(140% 100% at 0% 100%, rgba(255,255,255,.04), transparent 45%);}
-    .grid{display:grid;gap:16px} @media(min-width:1060px){.grid{grid-template-columns:1.2fr .8fr}}
-    .section{padding:18px} .muted{color:var(--muted)} input,select,button,textarea{font:inherit;color:inherit}
-    .field{display:flex;flex-direction:column;gap:8px} .row{display:grid;gap:12px} @media(min-width:640px){.row{grid-template-columns:repeat(3,1fr)}}
-    input,select,textarea{background:color-mix(in oklab,var(--panel) 96%, black 4%);border:1px solid var(--border);color:var(--text);border-radius:14px;padding:12px 14px;outline:none;transition:border .2s,transform .06s}
-    input:focus,select:focus,textarea:focus{border-color:color-mix(in oklab,var(--accent) 35%, var(--border))}
-    button{border:1px solid color-mix(in oklab, var(--border) 70%, transparent); background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 70%, transparent), color-mix(in oklab, var(--panel-2) 60%, transparent));
-      border-radius:22px; padding:12px 16px; cursor:pointer; transition:transform .06s ease, filter .2s ease; backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%);
-      box-shadow: 0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.06); pointer-events:auto; }
-    button:hover{filter:brightness(1.08)} button:active{transform:scale(.98)}
-    .btn-primary{border-color:color-mix(in oklab,var(--accent) 55%, var(--border)); background:linear-gradient(180deg,color-mix(in oklab,var(--accent) 60%, transparent), color-mix(in oklab,var(--accent) 40%, transparent))}
-    .btn-ghost{background:transparent; backdrop-filter:none; -webkit-backdrop-filter:none; box-shadow:none; border-color:color-mix(in oklab,var(--border) 60%, transparent)}
-    .totals{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .pill{padding:10px 12px;border-radius:999px;background:color-mix(in oklab, var(--panel) 70%, transparent); border:1px solid color-mix(in oklab,var(--border) 70%, transparent); text-align:center; backdrop-filter: blur(12px) saturate(140%); -webkit-backdrop-filter: blur(12px) saturate(140%); box-shadow: inset 0 1px 0 rgba(255,255,255,.06);}
-    .pill.good{border-color:color-mix(in oklab,var(--ok) 45%, var(--border))} .pill.bad{border-color:color-mix(in oklab,var(--danger) 45%, var(--border))}
-    .list{display:flex;flex-direction:column} .item{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid color-mix(in oklab, var(--border) 80%, #0000)}
-    .item:first-child{border-top:none}
-    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in oklab, var(--border) 60%, transparent); background:color-mix(in oklab, var(--panel) 65%, transparent); color:color-mix(in oklab, var(--text) 90%, #0000);
-      backdrop-filter: blur(10px) saturate(130%); -webkit-backdrop-filter: blur(10px) saturate(130%); box-shadow: inset 0 1px 0 rgba(255,255,255,.05);}
-    .amount{font-variant-numeric:tabular-nums} .pos{color:var(--ok)} .neg{color:var(--danger)} .right{justify-self:end}
-    .login-card{max-width:480px;margin:120px auto;padding:24px;backdrop-filter:blur(10px)} .center{display:flex;gap:10px;align-items:center;justify-content:center} .hidden{display:none !important}
-    .footer{margin-top:24px;color:#7a7a7a;text-align:center;font-size:12px} .toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap} .toolbar .field{min-width:160px}
-    .charts{display:grid;gap:16px} @media(min-width:1060px){.charts{grid-template-columns:1fr 1fr}}
-    .progress{height:12px;border-radius:999px;background:color-mix(in oklab,var(--panel) 90%, black 10%);border:1px solid var(--border);overflow:hidden}
-    .progress > .bar{height:100%;background:var(--accent);width:0}
-    /* tiny debug hud */
-    #status{position:fixed;bottom:10px;left:10px;z-index:9999;background:#111827;color:#e5e7eb;border:1px solid #374151;border-radius:10px;padding:6px 8px;font:12px/1.3 ui-monospace}
+    body { font-family: system-ui; background:#111; color:#eee; margin:0; padding:20px }
+    .card { max-width:400px; margin:60px auto; padding:20px; background:#222; border-radius:10px }
+    input,button { width:100%; padding:10px; margin:6px 0; border-radius:6px; border:1px solid #444; background:#000; color:#eee }
+    button { cursor:pointer; background:#0a84ff; border:none }
+    #auth-error { color:#f55; min-height:20px }
+    .hidden { display:none }
   </style>
 </head>
 <body>
-
-  <div id="status">init…</div>
-
-  <!-- Login -->
-  <div id="auth" class="login-card card">
-    <div class="brand center" style="margin-bottom:8px"><div class="dot"></div><h1>Budget</h1></div>
-    <p class="muted" style="text-align:center;margin:0 0 16px">Melde dich an, um deine Budgetübersicht zu sehen.</p>
-    <form id="login-form" class="grid" autocomplete="on" style="gap:12px">
-      <div class="field">
-        <label for="email">E-Mail</label>
-        <input id="email" name="email" type="email" inputmode="email" required placeholder="du@beispiel.de" />
-      </div>
-      <div class="field">
-        <label for="password">Passwort</label>
-        <input id="password" name="password" type="password" required placeholder="••••••••" />
-      </div>
-      <button class="btn-primary" type="submit">Anmelden</button>
-      <button id="signup" class="btn-ghost" type="button">Konto erstellen</button>
-      <p id="auth-error" class="muted" style="min-height:18px;margin-top:10px"></p>
-    </form>
+  <div id="auth" class="card">
+    <h2>Login</h2>
+    <input id="email" type="email" placeholder="E-Mail">
+    <input id="password" type="password" placeholder="Passwort">
+    <button id="loginBtn">Anmelden</button>
+    <button id="signupBtn">Registrieren</button>
+    <div id="auth-error"></div>
   </div>
 
-  <!-- Dashboard -->
-  <div class="wrap hidden" id="dashboard">
-    <header>
-      <div class="brand"><div class="dot"></div><h1>Dein Budget</h1></div>
-      <div class="center" style="gap:8px">
-        <span id="who" class="muted"></span>
-        <button id="themeToggle" title="Dark/Light Toggle">🌓</button>
-        <button id="logout">Abmelden</button>
-      </div>
-    </header>
-
-    <div class="grid">
-      <section class="card section">
-        <h2 style="margin:0 0 12px;font-size:16px">Buchungen</h2>
-        <div class="toolbar" style="margin-bottom:12px">
-          <div class="field"><label for="filter-category">Kategorie</label><select id="filter-category"><option value="__all">Alle</option></select></div>
-          <div class="field"><label for="filter-from">Von</label><input id="filter-from" type="date" /></div>
-          <div class="field"><label for="filter-to">Bis</label><input id="filter-to" type="date" /></div>
-          <div class="field"><label for="filter-month">Monat (Übersicht)</label><input id="filter-month" type="month" /></div>
-          <div class="field"><label>&nbsp;</label><button id="resetFilters" class="btn-ghost">Zurücksetzen</button></div>
-        </div>
-        <div class="list" id="entries"></div>
-      </section>
-
-      <aside class="card section">
-        <h2 style="margin:0 0 8px;font-size:16px">Neue Buchung</h2>
-        <form id="entry-form" class="grid" style="gap:12px">
-          <div class="row">
-            <div class="field"><label for="date">Datum</label><input id="date" name="date" type="date" required /></div>
-            <div class="field"><label for="type">Art</label><select id="type" name="type"><option value="expense">Ausgabe</option><option value="income">Einnahme</option></select></div>
-            <div class="field"><label for="category">Kategorie</label><input id="category" name="category" placeholder="z.B. Lebensmittel" /></div>
-          </div>
-          <div class="row">
-            <div class="field"><label for="description">Beschreibung</label><input id="description" name="description" placeholder="optional" /></div>
-            <div class="field"><label for="amount">Betrag (€)</label><input id="amount" name="amount" type="number" step="0.01" min="0" required /></div>
-            <div class="field"><label>&nbsp;</label><button class="btn-primary" type="submit">Speichern</button></div>
-          </div>
-        </form>
-        <div style="height:10px"></div>
-        <div class="totals">
-          <div class="pill">Einnahmen: <strong id="t-income">0,00 €</strong></div>
-          <div class="pill">Ausgaben: <strong id="t-expense">0,00 €</strong></div>
-          <div class="pill" id="balance-pill">Saldo: <strong id="t-balance">0,00 €</strong></div>
-        </div>
-
-        <div style="height:16px"></div>
-        <h3 style="margin:0 0 8px;font-size:15px">Monatsübersicht</h3>
-        <div class="charts">
-          <canvas id="chart-cumulative" height="200"></canvas>
-          <canvas id="chart-cats" height="200"></canvas>
-          <canvas id="chart-share" height="200"></canvas>
-        </div>
-
-        <div style="height:16px"></div>
-        <h3 style="margin:0 0 8px;font-size:15px">Budgetziel (pro Monat)</h3>
-        <div class="row">
-          <div class="field"><label for="budget-input">Budget für Monat (€)</label><input id="budget-input" type="number" step="1" min="0" placeholder="z.B. 1200" /></div>
-          <div class="field"><label>&nbsp;</label><button id="budget-save" class="btn-primary" type="button">Speichern</button></div>
-          <div class="field"><label>Aktueller Monat</label><div id="budget-month" class="pill" style="text-align:left">—</div></div>
-        </div>
-        <div class="field" style="margin-top:8px">
-          <label>Fortschritt</label>
-          <div class="progress"><div class="bar" id="budget-bar"></div></div>
-          <div class="muted" id="budget-info">—</div>
-        </div>
-      </aside>
-    </div>
-
-    <p class="footer">⌘ iOS-inspired, minimal · Firebase Auth + Firestore · Charts: Chart.js</p>
+  <div id="dashboard" class="card hidden">
+    <h2>Dashboard</h2>
+    <p>Angemeldet als: <span id="who"></span></p>
+    <button id="logout">Abmelden</button>
   </div>
-
-  <script>
-    const statusEl = document.getElementById('status');
-    function setStatus(msg){ statusEl.textContent = msg; }
-    window.addEventListener('error', e => setStatus('JS-Fehler: ' + (e.message || '')), { once:true });
-    window.addEventListener('unhandledrejection', e => setStatus('Promise-Fehler: ' + (e.reason?.message || e.reason || '')), { once:true });
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    const firebaseConfig = { apiKey:"AIzaSyBX2SJ69fysC6EhhAUr-RhnwLUz7OvP1Nc", authDomain:"budgetyve.firebaseapp.com", projectId:"budgetyve", storageBucket:"budgetyve.appspot.com", messagingSenderId:"675773555711", appId:"1:675773555711:web:3f2c7a7bf7ac5d6a507dca" };
-    setStatus('init Firebase…');
-    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
-    setStatus('Auth bereit.');
+    const firebaseConfig = {
+      apiKey: "AIzaSyBX2SJ69fysC6EhhAUr-RhnwLUz7OvP1Nc",
+      authDomain: "budgetyve.firebaseapp.com",
+      projectId: "budgetyve",
+      storageBucket: "budgetyve.appspot.com",
+      messagingSenderId: "675773555711",
+      appId: "1:675773555711:web:3f2c7a7bf7ac5d6a507dca"
+    };
 
-    const el = (id)=>document.getElementById(id);
-    const entriesBox = el('entries'); const themeBtn = el('themeToggle');
-    const fCat=el('filter-category'), fFrom=el('filter-from'), fTo=el('filter-to'), fMonth=el('filter-month');
-    const authCard=el('auth'), dash=el('dashboard');
-    const budgetInput=el('budget-input'), budgetSave=el('budget-save'), budgetBar=el('budget-bar'), budgetInfo=el('budget-info'), budgetMonth=el('budget-month');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    themeBtn.addEventListener('click', ()=>{ const html=document.documentElement; html.setAttribute('data-theme', html.getAttribute('data-theme')==='light'?'dark':'light'); if(window.__charts){ window.__charts.forEach(c=>c.destroy()); window.__charts=[]; renderCharts(currentMonthData()); }});
+    const $ = id => document.getElementById(id);
+    const authCard = $("auth");
+    const dash = $("dashboard");
+    const who = $("who");
 
-    el('logout').addEventListener('click', ()=>signOut(auth));
-    el('login-form').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const email=el('email').value.trim();
-      const pw=el('password').value;
-      el('auth-error').textContent = 'Melde an …';
-      setStatus('Anmelden…');
-      try{
-        await signInWithEmailAndPassword(auth,email,pw);
-        el('auth-error').textContent='';
-        setStatus('angemeldet.');
-      }catch(err){
-        const msg = mapAuthError(err);
-        el('auth-error').textContent = msg;
-        setStatus('Fehler: ' + msg);
+    $("loginBtn").onclick = async () => {
+      try {
+        await signInWithEmailAndPassword(auth, $("email").value, $("password").value);
+        $("auth-error").textContent = "";
+      } catch (err) {
+        $("auth-error").textContent = err.message;
+      }
+    };
+
+    $("signupBtn").onclick = async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, $("email").value, $("password").value);
+        $("auth-error").textContent = "";
+      } catch (err) {
+        $("auth-error").textContent = err.message;
+      }
+    };
+
+    $("logout").onclick = () => signOut(auth);
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        authCard.classList.add("hidden");
+        dash.classList.remove("hidden");
+        who.textContent = user.email;
+      } else {
+        dash.classList.add("hidden");
+        authCard.classList.remove("hidden");
       }
     });
-    el('signup').addEventListener('click', async ()=>{
-      const email=el('email').value.trim();
-      const pw=el('password').value;
-      if(!email||!pw){ el('auth-error').textContent='Bitte E-Mail & Passwort ausfüllen.'; return; }
-      try{ await createUserWithEmailAndPassword(auth,email,pw); el('auth-error').textContent=''; setStatus('Konto erstellt.'); }
-      catch(err){ const msg=mapAuthError(err); el('auth-error').textContent=msg; setStatus('Fehler: '+msg); }
-    });
-
-    function mapAuthError(err){
-      const code = err?.code || '';
-      if (code.includes('auth/invalid-credential')) return 'Anmeldung fehlgeschlagen – stimmt E-Mail/Passwort?';
-      if (code.includes('auth/user-not-found')) return 'Kein Konto mit dieser E-Mail gefunden.';
-      if (code.includes('auth/wrong-password')) return 'Falsches Passwort.';
-      if (code.includes('auth/too-many-requests')) return 'Zu viele Versuche – bitte später erneut.';
-      if (code.includes('auth/network-request-failed')) return 'Netzwerkfehler – bist du online?';
-      if (code.includes('auth/operation-not-allowed')) return 'E-Mail/Passwort ist in Firebase nicht aktiviert.';
-      if (code.includes('auth/unauthorized-domain')) return 'Domain nicht erlaubt. Füge deine GitHub Pages Domain unter Auth → Authorized domains hinzu.';
-      if (code.includes('auth/invalid-api-key')) return 'API Key/Projekt falsch. Prüfe firebaseConfig.';
-      return 'Fehler: ' + (err.message || String(err));
-    }
-
-    let unsubEntries=null, allItems=[]; let budgets={}; let currentUser=null;
-
-    onAuthStateChanged(auth, (user)=>{
-      if(user){
-        currentUser=user;
-        authCard.classList.add('hidden');
-        dash.classList.remove('hidden');
-        el('who').textContent=user.email;
-        el('date').valueAsDate=new Date();
-        setStatus('angemeldet.');
-        startEntriesLive(user.uid);
-        loadBudgets(user.uid);
-      }else{
-        if(unsubEntries){unsubEntries();unsubEntries=null;}
-        dash.classList.add('hidden');
-        authCard.classList.remove('hidden');
-        setStatus('nicht angemeldet.');
-      }
-    });
-
-    function startEntriesLive(uid){ const qy=query(collection(db,'users',uid,'entries'),orderBy('createdAt','desc')); unsubEntries=onSnapshot(qy,(snap)=>{ const items=[]; snap.forEach(d=>items.push({id:d.id,...d.data()})); allItems=items; populateFilters(items); render(items); }); }
-
-    async function loadBudgets(uid){ const ref=doc(db,'users',uid,'settings','budgets'); const snap=await getDoc(ref); budgets=snap.exists()? (snap.data().monthly||{}):{}; updateBudgetUI(); }
-    async function saveBudgetFor(monthKey, value){ if(!currentUser) return; const ref=doc(db,'users',currentUser.uid,'settings','budgets'); await setDoc(ref,{ monthly:{ [monthKey]: value } },{ merge:true }); budgets[monthKey]=value; updateBudgetUI(); render(allItems); }
-    budgetSave.addEventListener('click', ()=>{ const mk=monthKey(); const val=Number(budgetInput.value)||0; saveBudgetFor(mk,val); });
-
-    el('entry-form').addEventListener('submit', async (e)=>{ e.preventDefault(); const user=auth.currentUser; if(!user) return; const payload=readForm(); try{ await addDoc(collection(db,'users',user.uid,'entries'),{...payload,createdAt:serverTimestamp()}); e.target.reset(); el('date').valueAsDate=new Date(); }catch(err){ alert('Konnte nicht speichern: '+err); } });
-
-    function readForm(){ const date=el('date').value||new Date().toISOString().slice(0,10); const type=el('type').value; const category=(el('category').value||'').trim()||'Allgemein'; const description=(el('description').value||'').trim(); const amount=Number(el('amount').value); return { date,type,category,description,amount }; }
-    el('resetFilters').addEventListener('click',()=>{ fCat.value='__all'; fFrom.value=''; fTo.value=''; fMonth.value=''; render(allItems); });
-    ;[fCat,fFrom,fTo,fMonth].forEach(c=> c.addEventListener('change', ()=> render(allItems)));
-
-    function populateFilters(items){ const set=new Set(items.map(i=>(i.category||'Allgemein').trim())); const cur=fCat.value; fCat.innerHTML='<option value="__all">Alle</option>'+Array.from(set).sort().map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join(''); fCat.value=[...set,'__all'].includes(cur)?cur:'__all'; }
-    function applyFilters(items){ let out=items.slice(); if(fCat.value && fCat.value!=='__all') out=out.filter(i=>(i.category||'Allgemein')===fCat.value); if(fFrom.value) out=out.filter(i=>(i.date||'')>=fFrom.value); if(fTo.value) out=out.filter(i=>(i.date||'')<=fTo.value); return out; }
-
-    function render(items){ const filtered=applyFilters(items); renderList(filtered); renderTotals(filtered); renderCharts(currentMonthData(filtered)); }
-
-    function renderList(items){ entriesBox.innerHTML=''; if(items.length===0){ entriesBox.innerHTML='<div class="muted" style="padding:16px">Keine Einträge für den Filter.</div>'; return; } const fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}); for(const it of items){ const row=document.createElement('div'); row.className='item'; const chip=`<span class="chip">${escapeHTML(it.category||'Allgemein')}</span>`; const d=new Date(it.date); const ds=isNaN(d)?escapeHTML(it.date||''):d.toLocaleDateString('de-DE'); const sign=it.type==='income'?1:-1; const amt=sign*(Number(it.amount)||0); row.innerHTML=`<div><div style="font-weight:600">${chip} ${escapeHTML(it.description||'—')}</div><div class="muted" style="font-size:12px">${ds}</div></div><div class="right"><span class="amount ${amt>=0?'pos':'neg'}">${fmt.format(amt)}</span></div><div class="muted">${it.type==='income'?'Einnahme':'Ausgabe'}</div><div class="right"><button class="btn-ghost" aria-label="Löschen" title="Löschen" data-id="${it.id}">🗑️</button></div>`; row.querySelector('button').addEventListener('click',()=>delEntry(it.id)); entriesBox.appendChild(row);} }
-
-    async function delEntry(id){ const user=auth.currentUser; if(!user) return; if(!confirm('Buchung wirklich löschen?')) return; try{ await deleteDoc(doc(db,'users',user.uid,'entries',id)); }catch(err){ alert('Konnte nicht löschen: '+err);} }
-
-    function renderTotals(items){ let inc=0,exp=0; for(const it of items){ const v=Number(it.amount)||0; if(it.type==='income') inc+=v; else exp+=v; } const bal=inc-exp; const fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}); el('t-income').textContent=fmt.format(inc); el('t-expense').textContent=fmt.format(exp); el('t-balance').textContent=fmt.format(bal); const pill=el('balance-pill'); pill.classList.toggle('good',bal>=0); pill.classList.toggle('bad',bal<0); }
-
-    function currentMonthData(items=applyFilters(allItems)){ let y,m; if(fMonth.value){ const [yy,mm]=fMonth.value.split('-'); y=+yy; m=+mm; } else { const now=new Date(); y=now.getFullYear(); m=now.getMonth()+1; } const start=`${y}-${String(m).padStart(2,'0')}-01`; const endDay=new Date(y,m,0).getDate(); const end=`${y}-${String(m).padStart(2,'0')}-${String(endDay).padStart(2,'0')}`; const monthly=items.filter(i=>(i.date||'')>=start && (i.date||'')<=end); budgetMonth.textContent=`${String(m).padStart(2,'0')}.${y}`; return { y,m,days:endDay,items:monthly } }
-    function monthKey(){ const {y,m}=currentMonthData(); return `${y}-${String(m).padStart(2,'0')}` }
-
-    window.__charts=[];
-    function renderCharts(month){
-      if (typeof Chart === 'undefined') { updateBudgetUI(month, sumExpenses(month.items)); return; }
-      const ctx1=document.getElementById('chart-cumulative').getContext('2d');
-      const ctx2=document.getElementById('chart-cats').getContext('2d');
-      const ctx3=document.getElementById('chart-share').getContext('2d');
-      const labels=Array.from({length:month.days},(_,i)=>String(i+1));
-      const daily=Array(month.days).fill(0);
-      for(const it of month.items){ const day=new Date(it.date).getDate(); const v=Number(it.amount)||0; daily[day-1]+= (it.type==='income'? v : -v); }
-      const cum=[]; let run=0; for(let i=0;i<month.days;i++){ run+=daily[i]||0; cum.push(run); }
-      const cats={}; for(const it of month.items){ const c=(it.category||'Allgemein').trim(); const v=Number(it.amount)||0; cats[c]=(cats[c]||0)+(it.type==='expense'? v:0); }
-      const catLabels=Object.keys(cats); const catVals=catLabels.map(k=>cats[k]); const totalExp = catVals.reduce((a,b)=>a+b,0) || 1;
-      const accent=getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#0a84ff';
-      const textCol=getComputedStyle(document.body).color;
-      if(window.__charts){ window.__charts.forEach(c=>c.destroy()); window.__charts=[]; }
-      const c1=new Chart(ctx1,{type:'line',data:{labels,datasets:[{label:'Kumulierte Bilanz',data:cum,borderColor:accent,backgroundColor:accent,tension:.25,fill:false}]},options:{plugins:{legend:{labels:{color:textCol}}},scales:{x:{ticks:{color:textCol}},y:{ticks:{color:textCol}}}}});
-      const c2=new Chart(ctx2,{type:'bar',data:{labels:catLabels,datasets:[{label:'Ausgaben nach Kategorie (€)',data:catVals,backgroundColor:accent}]},options:{plugins:{legend:{labels:{color:textCol}}},scales:{x:{ticks:{color:textCol}},y:{ticks:{color:textCol}}}}});
-      const c3=new Chart(ctx3,{type:'doughnut',data:{labels:catLabels,datasets:[{data:catVals}]},options:{plugins:{legend:{labels:{color:textCol}},tooltip:{callbacks:{label:(ctx)=>{const v=ctx.parsed; const p=((v/totalExp)*100).toFixed(1); return `${ctx.label}: ${v.toLocaleString('de-DE',{style:'currency','EUR'})} (${p}%)`;}}}}});
-      window.__charts.push(c1,c2,c3);
-      updateBudgetUI(month, totalExp);
-    }
-
-    function updateBudgetUI(month=currentMonthData(), totalExp = sumExpenses(month.items)){
-      const mk = `${month.y}-${String(month.m).padStart(2,'0')}`; const goal = Number(budgets[mk]||0);
-      budgetInput.value = goal ? String(goal) : '';
-      const spent = totalExp; const pct = goal ? Math.min(100, Math.round((spent/goal)*100)) : 0;
-      budgetBar.style.width = goal ? pct+'%' : '0%';
-      const fmt = new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
-      if(goal){ budgetInfo.textContent = `Ausgegeben: ${fmt.format(spent)} von ${fmt.format(goal)} (${pct}%)`; }
-      else { budgetInfo.textContent = 'Kein Budgetziel für diesen Monat gesetzt.'; }
-    }
-    function sumExpenses(items){ let s=0; for(const it of items){ if(it.type==='expense') s += Number(it.amount)||0; } return s; }
-
-    function escapeHTML(s){ return (s||'').replace(/[&<>\"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\\'':'&#39;'}[m])); }
   </script>
-
-  <!-- Firestore Rules hint omitted in prod -->
 </body>
 </html>
