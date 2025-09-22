@@ -21,7 +21,7 @@
     .row{display:flex;gap:10px}
     .row>div{flex:1}
     .muted{color:var(--muted)}
-    .right{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+    .right{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
     table{width:100%;border-collapse:collapse}
     th,td{padding:10px;border-bottom:1px solid #23252e;text-align:left;font-size:14px}
     th{color:#aab2c0;font-weight:600}
@@ -33,9 +33,49 @@
     .sum.negative{color:#ff9aa0}
     .hide{display:none}
     .auth{max-width:420px;margin:96px auto}
-    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
     .tag{padding:6px 10px;border-radius:10px;background:#0e0f14;border:1px solid #2a2d36;color:#9aa2b2;font-size:12px}
     .actions{display:flex;gap:8px}
+
+    /* === Mobile Optimierungen === */
+    /* 1) Größere Touch-Ziele */
+    @media(max-width:600px){
+      button{padding:14px 16px;font-size:16px}
+      input,select,textarea{padding:12px 14px;font-size:16px}
+    }
+
+    /* 2) Formular untereinander stapeln */
+    @media(max-width:500px){
+      .row{flex-direction:column}
+    }
+
+    /* 3) Topbar/Aktionen umbrechen */
+    @media(max-width:700px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .actions{flex-direction:column;width:100%}
+      .actions > *{width:100%}
+    }
+
+    /* 4) Tabelle als Kartenliste auf Mobilgeräten */
+    @media(max-width:600px){
+      table, thead, tbody, th, td, tr { display:block; }
+      thead{ display:none; }
+      tbody{ display:grid; gap:10px; }
+      tr{ border:1px solid #23252e; border-radius:12px; padding:8px; }
+      td{ border:none; padding:8px 8px; }
+      td[data-label]{
+        display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      }
+      td[data-label]::before{
+        content: attr(data-label);
+        font-weight:600; color:var(--muted);
+      }
+      td:last-child{ padding-top:8px }
+      .right{ justify-content:stretch }
+      .right button{ flex:1 }
+      /* Betrag in eigener Zeile rechtsbündig */
+      td.amount{ font-variant-numeric: tabular-nums; }
+    }
   </style>
 </head>
 <body>
@@ -90,7 +130,7 @@
           </div>
           <div>
             <label class="muted">Betrag (€)</label>
-            <input id="amount" type="number" step="0.01" min="0" placeholder="0,00" />
+            <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00" />
           </div>
         </div>
         <div>
@@ -148,7 +188,7 @@
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // === Firebase config: wie in deinem bestehenden Login-Setup ===
+    // === Firebase config (unverändert) ===
     const firebaseConfig = {
       apiKey: "AIzaSyBX2SJ69fysC6EhhAUr-RhnwLUz7OvP1Nc",
       authDomain: "budgetyve.firebaseapp.com",
@@ -196,12 +236,12 @@
       const date = d.date?.toDate?.() || new Date(d.date);
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${date.toLocaleDateString('de-DE')}</td>
-        <td>${d.kind==='income' ? '<span class="pill in">Einnahme</span>' : '<span class="pill out">Ausgabe</span>'}</td>
-        <td>${escapeHtml(d.cat || '')}</td>
-        <td style="text-align:right">${fmtEUR(Number(d.amount||0))}</td>
-        <td>${escapeHtml(d.note || '')}</td>
-        <td class="right">
+        <td data-label="Datum">${date.toLocaleDateString('de-DE')}</td>
+        <td data-label="Typ">${d.kind==='income' ? '<span class="pill in">Einnahme</span>' : '<span class="pill out">Ausgabe</span>'}</td>
+        <td data-label="Kategorie">${escapeHtml(d.cat || '')}</td>
+        <td data-label="Betrag" class="amount" style="text-align:right">${fmtEUR(Number(d.amount||0))}</td>
+        <td data-label="Notiz">${escapeHtml(d.note || '')}</td>
+        <td data-label="Aktionen" class="right">
           <button data-act="edit">Bearbeiten</button>
           <button data-act="del" style="background:var(--danger)">Löschen</button>
         </td>`;
