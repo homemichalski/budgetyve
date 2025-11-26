@@ -76,6 +76,23 @@
       /* Betrag in eigener Zeile rechtsbündig */
       td.amount{ font-variant-numeric: tabular-nums; }
     }
+
+    .cat-breakdown{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-top:6px;
+    }
+    .cat-chip{
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#0e0f14;
+      border:1px solid #2a2d36;
+      color:var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
   </style>
 </head>
 <body>
@@ -159,6 +176,11 @@
             <div class="muted">Saldo</div>
             <div id="sumNet" class="sum">–</div>
           </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Ausgaben nach Kategorie (dieser Monat)</div>
+          <div id="catBreakdown" class="cat-breakdown"></div>
         </div>
       </div>
     </div>
@@ -288,7 +310,28 @@
       await deleteDoc(doc(col, id));
     }
 
-    function subscribeMonth(uid, yyyyMM){
+    
+    function renderCategoryTotals(catTotals){
+      const container = $("catBreakdown");
+      if(!container) return;
+
+      container.innerHTML = '';
+      const entries = Object.entries(catTotals).sort((a,b)=> b[1] - a[1]);
+
+      if(!entries.length){
+        container.innerHTML = '<span class="muted">Keine Ausgaben in diesem Monat.</span>';
+        return;
+      }
+
+      for(const [cat, value] of entries){
+        const chip = document.createElement('div');
+        chip.className = 'cat-chip';
+        chip.innerHTML = `<strong>${escapeHtml(cat)}</strong>: ${fmtEUR(value)}`;
+        container.appendChild(chip);
+      }
+    }
+
+function subscribeMonth(uid, yyyyMM){
       if(unsub) unsub();
       const {start, end} = monthStartEnd(yyyyMM);
       const col = collection(db, 'users', uid, 'entries');
@@ -296,10 +339,22 @@
       unsub = onSnapshot(qy, (snap)=>{
         const rows = $("rows");
         rows.innerHTML = '';
-        let sumIn=0, sumOut=0;
+        let sumIn = 0, sumOut = 0;
+        const catTotals = {};
+
         snap.forEach((docSnap)=>{
           const d = { id: docSnap.id, ...docSnap.data() };
-          if(d.kind==='income') sumIn += Number(d.amount||0); else sumOut += Number(d.amount||0);
+          const amount = Number(d.amount || 0);
+
+          if(d.kind === 'income'){
+            sumIn += amount;
+          } else {
+            sumOut += amount;
+            const keyRaw = (d.cat || 'Ohne Kategorie');
+            const key = keyRaw.trim() || 'Ohne Kategorie';
+            catTotals[key] = (catTotals[key] || 0) + amount;
+          }
+
           const tr = rowTemplate(d);
           tr.querySelector('[data-act="edit"]').onclick = ()=>{
             editId = d.id;
@@ -315,12 +370,15 @@
           };
           rows.appendChild(tr);
         });
+
         $("sumIn").textContent = fmtEUR(sumIn);
         $("sumOut").textContent = fmtEUR(sumOut);
         const net = sumIn - sumOut;
         $("sumNet").textContent = fmtEUR(net);
         $("sumNet").classList.toggle('positive', net >= 0);
         $("sumNet").classList.toggle('negative', net < 0);
+
+        renderCategoryTotals(catTotals);
       });
     }
 
@@ -373,6 +431,8 @@
       } else {
         if(unsub) unsub();
         $("rows").innerHTML='';
+        const catEl = $("catBreakdown");
+        if(catEl) catEl.innerHTML = '';
         $("auth").classList.remove('hide');
         $("app").classList.add('hide');
       }
