@@ -14,7 +14,7 @@
     .card{background:var(--card);border:1px solid #24262e;border-radius:14px;padding:16px}
     h1{font-size:22px;margin:0 0 12px}
     h2{font-size:16px;margin:0 0 8px;color:var(--muted)}
-    input,select,button,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2d36;background:#0e0f14;color:var(--text)}
+    input,select,button,textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #2a2d36;background:#0e0f14;color:var(--text);pointer-events:auto}
     input[type="month"], input[type="date"]{padding:8px 10px}
     button{background:var(--primary);border:none;cursor:pointer;font-weight:600}
     button.ghost{background:transparent;border:1px dashed #2a2d36}
@@ -91,6 +91,51 @@
       border:1px solid #2a2d36;
       color:var(--muted);
       font-variant-numeric: tabular-nums;
+      cursor:pointer;
+      user-select:none;
+      transition:background .15s,border-color .15s,transform .1s;
+    }
+    .cat-chip:hover{
+      border-color:var(--primary);
+      transform:translateY(-1px);
+    }
+    .cat-chip.active{
+      background:#111827;
+      border-color:var(--primary);
+      color:#e5e7eb;
+    }
+    .cat-details{
+      margin-top:10px;
+      border-top:1px dashed #2a2d36;
+      padding-top:10px;
+      font-size:13px;
+    }
+    .cat-details-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:4px;
+      color:var(--muted);
+    }
+    .cat-details-list{
+      display:grid;
+      gap:4px;
+    }
+    .cat-details-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      border-radius:8px;
+      padding:4px 6px;
+      background:#0b0c12;
+    }
+    .cat-details-left{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
+    .cat-details-amount{
+      font-variant-numeric:tabular-nums;
     }
 
   </style>
@@ -143,7 +188,17 @@
         <div class="row">
           <div>
             <label class="muted">Kategorie</label>
-            <input id="cat" placeholder="z. B. Miete, Gehalt, Essen" />
+            <select id="cat">
+              <option value="">Kategorie wählen…</option>
+              <option value="Arbeit">Arbeit</option>
+              <option value="Essen">Essen</option>
+              <option value="Sparen">Sparen</option>
+              <option value="Bücher">Bücher</option>
+              <option value="Shoppen">Shoppen</option>
+              <option value="Sonstiges">Sonstiges</option>
+              <option value="Miete">Miete</option>
+              <option value="Gesundheit">Gesundheit</option>
+            </select>
           </div>
           <div>
             <label class="muted">Betrag (€)</label>
@@ -181,6 +236,7 @@
         <div style="margin-top:12px">
           <div class="muted">Ausgaben nach Kategorie (dieser Monat)</div>
           <div id="catBreakdown" class="cat-breakdown"></div>
+          <div id="catDetails" class="cat-details"></div>
         </div>
       </div>
     </div>
@@ -311,22 +367,88 @@
     }
 
     
-    function renderCategoryTotals(catTotals){
+    function renderCategoryTotals(catTotals, catEntries){
       const container = $("catBreakdown");
-      if(!container) return;
+      const details = $("catDetails");
+      if(!container || !details) return;
 
       container.innerHTML = '';
-      const entries = Object.entries(catTotals).sort((a,b)=> b[1] - a[1]);
+      details.innerHTML = '';
 
-      if(!entries.length){
+      const allowed = [
+        'Arbeit',
+        'Essen',
+        'Sparen',
+        'Bücher',
+        'Shoppen',
+        'Sonstiges',
+        'Miete',
+        'Gesundheit'
+      ];
+
+      const hasAny = allowed.some(cat => (catTotals[cat] || 0) > 0);
+      if(!hasAny){
         container.innerHTML = '<span class="muted">Keine Ausgaben in diesem Monat.</span>';
         return;
       }
 
-      for(const [cat, value] of entries){
+      const renderDetailsFor = (cat)=>{
+        const list = catEntries[cat] || [];
+        if(!list.length){
+          details.innerHTML = '';
+          return;
+        }
+        const total = catTotals[cat] || 0;
+        const frag = document.createElement('div');
+        frag.innerHTML = `
+          <div class="cat-details-header">
+            <span>${escapeHtml(cat)} – ${list.length} Buchung(en)</span>
+            <span class="cat-details-amount">${fmtEUR(total)}</span>
+          </div>
+          <div class="cat-details-list"></div>
+        `;
+        const listEl = frag.querySelector('.cat-details-list');
+        list.forEach(item=>{
+          const date = item.date?.toDate?.() || new Date(item.date);
+          
+          const row = document.createElement('div');
+          row.className = 'cat-details-row';
+          const note = (item.note || '').trim();
+          row.innerHTML = `
+            <div style="display:flex; gap:12px; align-items:center;">
+              <span>${date.toLocaleDateString('de-DE')}</span>
+              ${note ? `<span class="muted">Notiz: ${escapeHtml(note)}</span>` : ''}
+            </div>
+            <div class="cat-details-amount">${fmtEUR(item.amount || 0)}</div>
+          `;
+          listEl.appendChild(row);
+        });
+        details.innerHTML = '';
+        details.appendChild(frag);
+      };
+
+      let activeCat = null;
+
+      for(const cat of allowed){
+        const value = catTotals[cat] || 0;
+        if(value <= 0) continue;
         const chip = document.createElement('div');
         chip.className = 'cat-chip';
         chip.innerHTML = `<strong>${escapeHtml(cat)}</strong>: ${fmtEUR(value)}`;
+        chip.addEventListener('click', ()=>{
+          const alreadyActive = (activeCat === cat);
+          activeCat = alreadyActive ? null : cat;
+
+          Array.from(container.querySelectorAll('.cat-chip')).forEach(el=>{
+            el.classList.toggle('active', el === chip && !alreadyActive);
+          });
+
+          if(alreadyActive){
+            details.innerHTML = '';
+          } else {
+            renderDetailsFor(cat);
+          }
+        });
         container.appendChild(chip);
       }
     }
@@ -341,6 +463,7 @@ function subscribeMonth(uid, yyyyMM){
         rows.innerHTML = '';
         let sumIn = 0, sumOut = 0;
         const catTotals = {};
+        const catEntries = {};
 
         snap.forEach((docSnap)=>{
           const d = { id: docSnap.id, ...docSnap.data() };
@@ -350,9 +473,20 @@ function subscribeMonth(uid, yyyyMM){
             sumIn += amount;
           } else {
             sumOut += amount;
-            const keyRaw = (d.cat || 'Ohne Kategorie');
-            const key = keyRaw.trim() || 'Ohne Kategorie';
+            const raw = (d.cat || '').trim();
+            const allowed = [
+              'Arbeit',
+              'Essen',
+              'Sparen',
+              'Bücher',
+              'Shoppen',
+              'Sonstiges',
+              'Miete',
+              'Gesundheit'
+            ];
+            const key = allowed.includes(raw) ? raw : 'Sonstiges';
             catTotals[key] = (catTotals[key] || 0) + amount;
+            (catEntries[key] = catEntries[key] || []).push(d);
           }
 
           const tr = rowTemplate(d);
@@ -378,7 +512,7 @@ function subscribeMonth(uid, yyyyMM){
         $("sumNet").classList.toggle('positive', net >= 0);
         $("sumNet").classList.toggle('negative', net < 0);
 
-        renderCategoryTotals(catTotals);
+        renderCategoryTotals(catTotals, catEntries);
       });
     }
 
@@ -433,6 +567,8 @@ function subscribeMonth(uid, yyyyMM){
         $("rows").innerHTML='';
         const catEl = $("catBreakdown");
         if(catEl) catEl.innerHTML = '';
+        const detEl = $("catDetails");
+        if(detEl) detEl.innerHTML = '';
         $("auth").classList.remove('hide');
         $("app").classList.add('hide');
       }
